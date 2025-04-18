@@ -1,18 +1,28 @@
-// TRUYAN ADMIN PANEL (admin_panel.dart)  
-     import 'package:flutter/material.dart';  
+class AdminPanel extends StatelessWidget {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-     class AdminPanel extends StatelessWidget {  
-       @override  
-       Widget build(BuildContext context) {  
-         return Scaffold(  
-           appBar: AppBar(title: const Text('Admin Panel')),  
-           body: ListView(  
-             children: [  
-               ListTile(title: const Text('Manage Users'),  
-               ListTile(title: const Text('View Transactions')),  
-               ListTile(title: const Text('Moderate Content')),  
-             ],  
-           ),  
-         );  
-       }  
-     }  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Admin Dashboard')),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestore.collection('referrals').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const CircularProgressIndicator();
+          
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var doc = snapshot.data!.docs[index];
+              return ListTile(
+                title: Text('User: ${doc['user']}'),
+                subtitle: Text('Total Rewards: ${doc['rewards']} TYAN'),
+                trailing: Text('Level: ${doc['level']}'),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
