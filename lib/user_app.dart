@@ -1,42 +1,45 @@
-// TRUYAN USER APP (user_app.dart)  
-     import 'package:flutter/material.dart';  
-     import 'package:walletconnect_dart/walletconnect_dart.dart';  
+ import 'package:flutter/material.dart';  
+   import 'package:provider/provider.dart';  
+   import 'services/wallet_service.dart';  
+   import 'services/tyan_service.dart';  
 
-     void main() => runApp(TruYanApp());  
+   void main() => runApp(  
+     MultiProvider(  
+       providers: [  
+         ChangeNotifierProvider(create: (_) => WalletService()),  
+         ChangeNotifierProvider(create: (_) => TYANService()),  
+       ],  
+       child: const TruYanApp(),  
+     ),  
+   );  
 
-     class TruYanApp extends StatelessWidget {  
-       final WalletConnect connector = WalletConnect(  
-         bridge: 'https://bridge.walletconnect.org',  
-         clientMeta: const PeerMeta(  
-           name: 'TruYan',  
-           description: 'Decentralized Social Media',  
-           url: 'https://truyan.com',  
-           icons: ['https://truyan.com/logo.png'],  
+   class TruYanApp extends StatelessWidget {  
+     const TruYanApp({super.key});  
+
+     @override  
+     Widget build(BuildContext context) {  
+       return MaterialApp(  
+         home: Scaffold(  
+           appBar: AppBar(  
+             title: const Text('TruYan'),  
+             actions: [  
+               IconButton(  
+                 icon: const Icon(Icons.wallet),  
+                 onPressed: () => Provider.of<WalletService>(context, listen: false).connect(),  
+               ),  
+             ],  
+           ),  
+           body: Column(  
+             children: [  
+               const Text('Post videos, earn TYAN!'),  
+               ElevatedButton(  
+                 onPressed: () => Provider.of<TYANService>(context, listen: false)  
+                     .sendTYAN('0xRecipient', '1000000000000000000'), // 1 TYAN  
+                 child: const Text('Send TYAN'),  
+               ),  
+             ],  
+           ),  
          ),  
        );  
-
-       @override  
-       Widget build(BuildContext context) {  
-         return MaterialApp(  
-           home: Scaffold(  
-             appBar: AppBar(  
-               title: const Text('TruYan'),  
-               actions: [  
-                 IconButton(  
-                   icon: const Icon(Icons.account_balance_wallet),  
-                   onPressed: () async {  
-                     if (!connector.connected) {  
-                       await connector.createSession(  
-                         chainId: 56, // BSC  
-                         onDisplayUri: (uri) => print('Connect URI: $uri'),  
-                       );  
-                     }  
-                   },  
-                 ),  
-               ],  
-             ),  
-             body: const Center(child: Text('Post, Stream, Earn TYAN!')),  
-           ),  
-         );  
-       }  
      }  
+   }  
