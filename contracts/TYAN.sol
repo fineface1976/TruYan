@@ -1,20 +1,27 @@
- function _distributeReferralRewards(address _user, uint256 _amount) internal {
-    address currentReferrer = referrerOf[_user];
-    uint256 remainingPercents = 50; // 20% + 10% + 10% + 10% + 10% = 60% (but capped at 50% for sustainability)
-    
-    for (uint256 i = 0; i < 5; i++) {
-        if (currentReferrer == address(0) {
-            // Spillover: Distribute remaining % to the platform reserve
-            _transfer(owner, owner, (_amount * remainingPercents) / 100);
-            break;
-        }
-        
-        uint256 rewardPercent = i == 0 ? 20 : 10;
-        if (rewardPercent > remainingPercents) rewardPercent = remainingPercents;
-        
-        _transfer(owner, currentReferrer, (_amount * rewardPercent) / 100);
-        remainingPercents -= rewardPercent;
-        
-        currentReferrer = referrerOf[currentReferrer];
+ // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract TYAN is ERC20 {
+    address public admin;
+    mapping(address => bool) public registeredUsers;
+
+    constructor() ERC20("TruYan", "TYAN") {
+        admin = msg.sender;
+        _mint(admin, 200_000_000 * 10**18); // Admin holds all tokens initially
+    }
+
+    // Register users and send 100 TYAN
+    function register() external {
+        require(!registeredUsers[msg.sender], "Already registered");
+        registeredUsers[msg.sender] = true;
+        _transfer(admin, msg.sender, 100 * 10**18);
+    }
+
+    // Link external wallets (e.g., MetaMask)
+    function linkWallet(address externalWallet) external {
+        require(registeredUsers[msg.sender], "Register first");
+        _transfer(msg.sender, externalWallet, balanceOf(msg.sender));
     }
 }
