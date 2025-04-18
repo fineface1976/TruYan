@@ -1,4 +1,4 @@
- Future<void> setReferrer(String referrerAddress) async {
+Future<void> setReferrer(String referrerAddress) async {
   final client = Web3Client(bscNode, Client());
   final contract = DeployedContract(
     ContractAbi.fromJson(tyanABI, 'TYAN'),
